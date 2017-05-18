@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Servlet implementation class BookServlet
  */
-@WebServlet("/BookServlet")
+@WebServlet("/query")
 public class BookServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -33,15 +33,34 @@ public class BookServlet extends HttpServlet {
 		Connection conn = null;
 		Statement stmt = null;
 		try{
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ebookshop","root","xxyyxyyx");
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/ebookshop?useSSL=false","root","xxyyxyyx");
 			stmt = conn.createStatement();
 			String author = request.getParameter("author");
 			String select = "Select * from books where author='"+author+"'";
 			ResultSet rset = stmt.executeQuery(select);
-			out.println("Query Result");
+			out.println("Query Result<br/><br/>");
+			while(rset.next()){
+				out.println(rset.getString("author")+" "+rset.getString("title"));
+			}
+			
+		}
+		catch(ClassNotFoundException e){
+			e.printStackTrace();
 		}
 		catch(SQLException ex){
 			ex.printStackTrace();
+		}
+		finally{
+			out.close();
+			try{
+				stmt.close();
+				conn.close();
+			}
+			catch(SQLException e){
+				e.printStackTrace();
+			}
 		}
 	}
 
